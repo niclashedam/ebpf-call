@@ -1,0 +1,23 @@
+name: C
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: sudo apt-get install gcc-multilib g++-multilib
+    - name: Install uBPF
+      run: git clone https://github.com/ITU-DASYALab/ubpf && cd ubpf/vm && make && sudo make install
+    - name: Compile call
+      run: make all
+    - name: Run basic example
+      run: ./ebpf-call -f examples/basic.o | grep -q 'Test function called.'
