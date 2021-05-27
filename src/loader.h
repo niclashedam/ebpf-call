@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <pthread.h>
 
 #define KB 1024
 #define MB 1024 * KB
@@ -9,12 +10,25 @@
 #define UBPF_PROG_BUF 1 * MB
 
 struct bpf_slot {
+  int i;
+
   struct ubpf_vm *engine;
   void *data;
   void *prog;
+
   uint8_t trigger;
   uint8_t status;
+  uint8_t load;
+
+  uint8_t ret_load;
+  uint8_t ret_exec;
+
+  pthread_t tid;
+  pthread_cond_t *cond;
+  pthread_mutex_t *lock;
 };
 
-int expose(struct bpf_slot *slot);
-int unexpose(struct bpf_slot *slot);
+int bpf_start();
+int bpf_expose(struct bpf_slot *slot);
+int bpf_unexpose(struct bpf_slot *slot);
+int bpf_end();
