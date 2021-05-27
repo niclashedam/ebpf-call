@@ -13,12 +13,12 @@ struct ext_func {
 
 static struct ext_func functions[] = {
     /* Test Module */
-    {.idx = 00, .name = "test", &test},
+    {.idx = 0, .name = "test", &test},
 
     /* Print Module */
-    {.idx = 10, .name = "prints", &prints},
-    {.idx = 11, .name = "printi", &printi},
-    {.idx = 12, .name = "printc", &printc},
+    {.idx = 1, .name = "prints", &prints},
+    {.idx = 2, .name = "printi", &printi},
+    {.idx = 3, .name = "printc", &printc},
 
     /* File Module */
-    {.idx = 20, .name = "file_read", &file_read}};
+    {.idx = 4, .name = "file_read", &file_read}};

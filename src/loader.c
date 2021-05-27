@@ -6,28 +6,29 @@
 #include <unistd.h>
 
 #include "exts.h"
+#include "loader.h"
 
-#define KB 1024
-#define MB KB * 1024
-#define GB MB * 1024
+static struct bpf_slot slots[UBPF_ENGINES];
 
-#define UBPF_ENGINES 1
-#define UBPF_DATA_BUF 32 * MB
-#define UBPF_PROG_BUF 32 * MB
-
+void exit_handler(void) {
+  for (int i = 0; i < UBPF_ENGINES; i++) {
+    unexpose(&slots[i]);
+  }
+}
 
 int main(int argc, char *argv[]) {
-  struct ubpf_vm *engines[UBPF_ENGINES];
-  void *dataz = calloc(UBPF_ENGINES, UBPF_DATA_BUF);
-  void *progz = calloc(UBPF_ENGINES, UBPF_PROG_BUF);
-
+  atexit(exit_handler);
   for (int i = 0; i < UBPF_ENGINES; i++) {
-    engines[i] = ubpf_create();
+    slots[i].engine = ubpf_create();
+    slots[i].data = calloc(1, UBPF_DATA_BUF);
+    slots[i].data = calloc(1, UBPF_PROG_BUF);
 
-    for (int i = 0; i < sizeof(functions) / sizeof(struct ext_func); i++) {
-      ubpf_register(engines[i], functions[i].idx, functions[i].name,
-                    functions[i].ref);
+    for (int j = 0; j < sizeof(functions) / sizeof(struct ext_func); j++) {
+      ubpf_register(slots[i].engine, functions[j].idx, functions[j].name,
+                    functions[j].ref);
     }
+
+    expose(&slots[i]);
   }
 
   return 0;
