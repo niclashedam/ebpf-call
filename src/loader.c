@@ -1,11 +1,11 @@
 #include <ctype.h>
+#include <pthread.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ubpf.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <signal.h>
 
 #include "exts.h"
 #include "loader.h"
@@ -13,25 +13,21 @@
 static struct bpf_slot slots[UBPF_ENGINES];
 static int terminating = 0;
 
-void exit_handler() {
-  bpf_end();
-}
+void exit_handler() { bpf_end(); }
 
-void sig_term_handler(int signum, siginfo_t *info, void *ptr)
-{
+void sig_term_handler(int signum, siginfo_t *info, void *ptr) {
   exit_handler();
 }
 
 void *bpf_exec(void *arg) {
   char *errmsg;
-  struct bpf_slot *slot = (struct bpf_slot *) arg;
+  struct bpf_slot *slot = (struct bpf_slot *)arg;
 
-  while(1){
+  while (1) {
     pthread_cond_wait(slot->cond, slot->lock);
     *slot->status = '1';
 
-
-    if(terminating) {
+    if (terminating) {
       bpf_unexpose(slot);
       ubpf_destroy(slot->engine);
     }
@@ -39,9 +35,14 @@ void *bpf_exec(void *arg) {
     if (*slot->load == '1') {
       *slot->load = '0';
       ubpf_unload_code(slot->engine);
-      slot->ret_load = ubpf_load_elf(slot->engine, slot->prog, UBPF_PROG_BUF, &errmsg);
+      slot->ret_load =
+          ubpf_load_elf(slot->engine, slot->prog, UBPF_PROG_BUF, &errmsg);
 
-      if (slot->ret_load < 0){ fprintf(stderr, "BPF load error on slot %i, ret = %li\n", slot->i, slot->ret_load); perror("");}
+      if (slot->ret_load < 0) {
+        fprintf(stderr, "BPF load error on slot %i, ret = %li\n", slot->i,
+                slot->ret_load);
+        perror("");
+      }
     }
 
     slot->ret_exec = ubpf_exec(slot->engine, slot->data, UBPF_DATA_BUF);
@@ -52,22 +53,20 @@ void *bpf_exec(void *arg) {
   }
 }
 
-
 int main(int argc, char *argv[]) {
   atexit(exit_handler);
 
+  static struct sigaction _sigact;
 
-    static struct sigaction _sigact;
+  memset(&_sigact, 0, sizeof(_sigact));
+  _sigact.sa_sigaction = sig_term_handler;
+  _sigact.sa_flags = SA_NODEFER;
 
-    memset(&_sigact, 0, sizeof(_sigact));
-    _sigact.sa_sigaction = sig_term_handler;
-    _sigact.sa_flags = SA_NODEFER;
-
-    sigaction(SIGTERM, &_sigact, NULL);
+  sigaction(SIGTERM, &_sigact, NULL);
 
   int start = bpf_start();
 
-  if(start != 0) {
+  if (start != 0) {
     fprintf(stderr, "Pre-handler exited with error code %i\n", start);
     exit(start);
   }
@@ -76,8 +75,8 @@ int main(int argc, char *argv[]) {
     slots[i].i = i;
     slots[i].engine = ubpf_create();
 
-    slots[i].lock = malloc(sizeof( pthread_mutex_t ) );
-    slots[i].cond = malloc(sizeof( pthread_cond_t ) );
+    slots[i].lock = malloc(sizeof(pthread_mutex_t));
+    slots[i].cond = malloc(sizeof(pthread_cond_t));
 
     pthread_mutex_init(slots[i].lock, NULL);
     pthread_cond_init(slots[i].cond, NULL);
@@ -88,7 +87,7 @@ int main(int argc, char *argv[]) {
     }
 
     int exposed = bpf_expose(&slots[i]);
-    if(exposed != 0) {
+    if (exposed != 0) {
       fprintf(stderr, "Exposer exited with error code %i\n", exposed);
       exit(exposed);
     }
@@ -99,12 +98,12 @@ int main(int argc, char *argv[]) {
     *slots[i].status = '0';
     *slots[i].load = '1'; // Trigger a load of any new code
 
-        pthread_create(&slots[i].tid, NULL, &bpf_exec, &slots[i]);
+    pthread_create(&slots[i].tid, NULL, &bpf_exec, &slots[i]);
   }
 
-  while(1){
+  while (1) {
     for (int i = 0; i < UBPF_ENGINES; i++) {
-      if(*slots[i].status == '0' && *slots[i].trigger == '1') {
+      if (*slots[i].status == '0' && *slots[i].trigger == '1') {
         *slots[i].trigger = '0';
         pthread_cond_signal(slots[i].cond);
       }

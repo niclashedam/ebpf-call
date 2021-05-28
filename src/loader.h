@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <pthread.h>
+#include <stdint.h>
 
 #define KB 1024
 #define MB 1024 * KB
