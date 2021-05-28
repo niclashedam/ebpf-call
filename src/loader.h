@@ -16,12 +16,12 @@ struct bpf_slot {
   void *data;
   void *prog;
 
-  uint8_t trigger;
-  uint8_t status;
-  uint8_t load;
+  char *trigger;
+  char *status;
+  char *load;
 
-  uint8_t ret_load;
-  uint8_t ret_exec;
+  int64_t ret_load;
+  int64_t ret_exec;
 
   pthread_t tid;
   pthread_cond_t *cond;
@@ -30,5 +30,5 @@ struct bpf_slot {
 
 int bpf_start();
 int bpf_expose(struct bpf_slot *slot);
-int bpf_unexpose(struct bpf_slot *slot);
-int bpf_end();
+void bpf_unexpose(struct bpf_slot *slot);
+void bpf_end();

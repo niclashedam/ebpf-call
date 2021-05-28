@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project (ebpf-call)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 if(NOT BACKEND)
     set(BACKEND mmap)
 endif()
