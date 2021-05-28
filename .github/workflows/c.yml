@@ -17,7 +17,19 @@ jobs:
       run: sudo apt-get install gcc-multilib g++-multilib
     - name: Install uBPF
       run: git clone https://github.com/ITU-DASYALab/ubpf && cd ubpf/vm && make && sudo make install
-    - name: Compile call
-      run: make all
-    - name: Run basic example
-      run: ./ebpf-call -f examples/basic.o | grep -q 'Test function called.'
+    - name: cmake
+      run: cmake .
+    - name: make
+      run: make
+    - name: Start host
+      run: (sudo ./ebpf-call &) && sleep 1
+    - name: Load program
+      run: sudo su -c "cat examples/basic.o > /tmp/bpf/0/program"
+    - name: Trigger program
+      run: sudo su -c "echo '1' > /tmp/bpf/0/trigger" && sleep 1
+    - name: Assert program not triggered
+      run: head -c 2 /tmp/bpf/0/trigger | grep -q '0'
+    - name: Assert program not running
+      run: head -c 2 /tmp/bpf/0/status | grep -q '0'
+    - name: Assert Basic output
+      run: head -c 2 /tmp/bpf/0/data | grep -q '1'

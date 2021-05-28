@@ -17,7 +17,7 @@ foreach(EXAMPLE ${EXAMPLES})
   add_custom_target(example_${TARGET}
     ALL
     DEPENDS examples
-    COMMAND cp "${CMAKE_SOURCE_DIR}/examples/CMakeFiles/objects.dir/${NAME}.c.o" ${NAME}.o
+    COMMAND cp "${CMAKE_SOURCE_DIR}/examples/CMakeFiles/examples.dir/${NAME}.c.o" ${NAME}.o
     BYPRODUCTS ${NAME}.o
     COMMENT "Moving ${NAME} object file .. (${NAME}.o)"
   )
