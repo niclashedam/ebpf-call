@@ -16,9 +16,16 @@ static struct ext_func functions[] = {
     {.idx = 0, .name = "test", &test},
 
     /* Print Module */
-    {.idx = 1, .name = "prints", &prints},
-    {.idx = 2, .name = "printi", &printi},
-    {.idx = 3, .name = "printc", &printc},
+    {.idx = 10, .name = "prints", &prints},
+    {.idx = 11, .name = "printi", &printi},
+    {.idx = 12, .name = "printc", &printc},
 
     /* File Module */
-    {.idx = 4, .name = "file_read", &file_read}};
+    {.idx = 20, .name = "file_read", &file_read},
+
+    /* Advamced File Module */
+    {.idx = 21, .name = "openFile", &openFile},
+    {.idx = 22, .name = "closeFile", &closeFile},
+    {.idx = 23, .name = "getLine", &getLine},
+    {.idx = 24, .name = "getAll", &getAll}
+};
