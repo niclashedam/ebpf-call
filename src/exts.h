@@ -1,9 +1,12 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "modules/file.h"
+#include "modules/memory.h"
 #include "modules/print.h"
 #include "modules/test.h"
+#include "modules/strings.h"
 
 struct ext_func {
   uint8_t idx;
@@ -19,13 +22,18 @@ static struct ext_func functions[] = {
     {.idx = 10, .name = "prints", &prints},
     {.idx = 11, .name = "printi", &printi},
     {.idx = 12, .name = "printc", &printc},
+    {.idx = 13, .name = "printp", &printp},
 
     /* File Module */
     {.idx = 20, .name = "file_read", &file_read},
 
-    /* Advamced File Module */
-    {.idx = 21, .name = "openFile", &openFile},
-    {.idx = 22, .name = "closeFile", &closeFile},
-    {.idx = 23, .name = "getLine", &getLine},
-    {.idx = 24, .name = "getAll", &getAll}
+    /* Strings */
+    {.idx = 30, .name = "strtok", &strtok},
+    {.idx = 31, .name = "strtok_r", &strtok_r},
+    {.idx = 32, .name = "atoi", &atoi},
+    {.idx = 33, .name = "atol", &atol},
+
+    /* Memory */
+    {.idx = 40, .name = "copy", &copy},
 };
+

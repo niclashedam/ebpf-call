@@ -39,9 +39,8 @@ void *bpf_exec(void *arg) {
           ubpf_load_elf(slot->engine, slot->prog, UBPF_PROG_BUF, &errmsg);
 
       if (slot->ret_load < 0) {
-        fprintf(stderr, "BPF load error on slot %i, ret = %li\n", slot->i,
-                slot->ret_load);
-        perror("");
+        fprintf(stderr, "BPF load error on slot %i, ret = %li, error = %s\n", slot->i,
+                slot->ret_load, errmsg);
       }
     }
 
